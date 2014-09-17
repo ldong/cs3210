@@ -16,6 +16,10 @@ static char *cookie_pot;  // Space for fortune strings
 static int cookie_index;  // Index to write next fortune
 static int next_fortune;  // Index to read next fortune
 
+ssize_t fortune_write( struct file *filp, const char __user *buff,
+                        unsigned long len, void *data );
+int fortune_read( char *page, char **start, off_t off,
+                   int count, int *eof, void *data );
 
 int init_fortune_module( void )
 {
@@ -45,7 +49,7 @@ int init_fortune_module( void )
 
       proc_entry->read_proc = fortune_read;
       proc_entry->write_proc = fortune_write;
-      proc_entry->owner = THIS_MODULE;
+      /* proc_entry->owner = THIS_MODULE; */
       printk(KERN_INFO "fortune: Module loaded.\n");
     }
   }
@@ -54,7 +58,8 @@ int init_fortune_module( void )
 
 void cleanup_fortune_module( void )
 {
-  remove_proc_entry("fortune", &proc_root);
+  /* remove_proc_entry("fortune", &proc_root); */
+  remove_proc_entry("fortune", NULL);
   vfree(cookie_pot);
   printk(KERN_INFO "fortune: Module unloaded.\n");
 }
