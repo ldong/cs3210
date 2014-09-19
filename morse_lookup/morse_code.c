@@ -5,7 +5,7 @@ int translate(char* arr){
     int size = 0; // size of arr
     int index = 1;
     char const *ptr = arr;
-    while(*ptr){
+    while(*ptr =='-' || *ptr =='.'){
         if(*ptr == '.'){
             index = 2 * index;
         } else if(*ptr == '-'){
