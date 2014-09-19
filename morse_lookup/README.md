@@ -8,6 +8,8 @@
 
 3. Construct the Morse code tree based on wiki international morse code
 
+![](./resources/wiki.png)
+
 ```
                                  .                       -
                                 Dit                     Dah
