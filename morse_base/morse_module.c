@@ -171,7 +171,8 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   if (copy_from_user(procfs_buffer, (const char __user *) usr_buffer, bytes_read))
     return -EFAULT;
 
-  vfree(usr_buffer);
+  /* vfree(usr_buffer); */
+  kfree(usr_buffer);
 
   return bytes_read;
 }
