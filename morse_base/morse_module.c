@@ -70,32 +70,23 @@ static ssize_t morse_read(struct file *filep, char __user *buffer,
 static ssize_t morse_write(struct file *filep, const char __user *buffer,
                 size_t length, loff_t *data)
 {
-  bytes_read = 0;
-  /* Get buffer size */
   printk(KERN_INFO "/proc/%s: morse_write() called.\n", PROCFS_NAME);
-
   printk(KERN_INFO "/proc/%s: length: %zu \n", PROCFS_NAME, length);
 
-
-  // parse for single characters (delimeted by a space)
-  /* char charbuf[5]; */
-  /* char c; */
   int i = 0; int r = 0;
-  /* char *usr_buffer; */
-//  usr_buffer = vmalloc(length*sizeof(char));
-//  /* usr_buffer = kmalloc(GFP_KERNEL, length*sizeof(char)); */
-//  if (usr_buffer < 0)
-//  {
-//    printk(KERN_INFO "vmalloc  ERROR");
-//    return -EFAULT;
-//  }
+  bytes_read = 0;
+
+  /* usr_buffer = vmalloc(length*sizeof(char)); */
+  /* usr_buffer = kmalloc(GFP_KERNEL, length*sizeof(char)); */
+  /* if (usr_buffer < 0) */
+  /* { */
+  /*   printk(KERN_INFO "vmalloc  ERROR"); */
+  /*   return -EFAULT; */
+  /* } */
 
   while (length)
   {
-    if (buffer[i] == '-' || buffer[i] == '.')
-    {
-      ++r;
-    }
+    if (buffer[i] == '-' || buffer[i] == '.') ++r;
     else if (buffer[i] == ' ')
     {
       memcpy(charbuf, buffer+i-r, r);
@@ -103,7 +94,8 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
       length -= (++r);
 
       /* write c to buffer */
-  printk(KERN_INFO "%c",c);
+
+      printk(KERN_INFO "%c",c);
       /* usr_buffer[bytes_read] = c; */
 
       ++bytes_read;
@@ -117,9 +109,10 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
       length -= (++r);
 
       /* write c+<space> to buffer */
-  printk(KERN_INFO "%c ",c);
-      usr_buffer[bytes_read] = c;
-      usr_buffer[bytes_read+1] = ' ';
+
+      printk(KERN_INFO "%c ",c);
+      /* usr_buffer[bytes_read] = c; */
+      /* usr_buffer[bytes_read+1] = ' '; */
 
       bytes_read += 2;
       memset(charbuf, 0, 5);
@@ -132,25 +125,25 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
       length -= (++r);
 
       /* write c+\0 to buffer */
-  printk(KERN_INFO "%c\n",c);
-      usr_buffer[bytes_read] = c;
-      usr_buffer[bytes_read+1] = '\0';
+
+      printk(KERN_INFO "%c\n",c);
+      /* usr_buffer[bytes_read] = c; */
+      /* usr_buffer[bytes_read+1] = '\0'; */
 
       bytes_read += 2;
-
-      /* could break here... */
-      break;
+      break; // might not need
     }
-    else if (buffer[i] == '"') ;
+    /* else if (buffer[i] == '"') ; */
     else printk(KERN_INFO "ERROR: /proc/%s: translation\n", PROCFS_NAME);
-
     ++i;
   }
+
+  printk(KERN_INFO "Translation complete\n"
+                   "bytes_read: %zu\nPROCFS_SIZE: %zu\n", bytes_read, PROCFS_SIZE);
 
   while (bytes_read > PROCFS_SIZE)
   {
     PROCFS_SIZE *= 2;
-    /* char *new_kspace; */
     new_kspace = kmalloc(GFP_KERNEL, PROCFS_SIZE*sizeof(char));
     kfree(procfs_buffer);
     procfs_buffer = new_kspace;
@@ -161,10 +154,9 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   if (copy_from_user(procfs_buffer, buffer, length))
   /* if (copy_from_user(procfs_buffer, usr_buffer, bytes_read)) */
   {
-    printk(KERN_INFO "HERE ERROR");
+    printk(KERN_INFO "copy_from_user() error\n");
     return -EFAULT;
   }
-
   /* vfree(usr_buffer); */
 
   return bytes_read;
