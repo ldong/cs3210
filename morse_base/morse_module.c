@@ -84,7 +84,7 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   int i = 0; int r = 0;
   /* char *usr_buffer; */
   /* usr_buffer = vmalloc(length*sizeof(char)/5); */
-  usr_buffer = vmalloc(length*sizeof(char));
+  usr_buffer = kmalloc(GFP_KERNEL, length*sizeof(char));
   while (length)
   {
     if (buffer[i] == '-' || buffer[i] == '.')
