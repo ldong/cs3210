@@ -15,7 +15,6 @@
 
 
 /* #include <linux/sched.h> */
-/* #include <linux/string.h> */
 /* #include <linux/slab.h> */
 
 #define PROCFS_NAME        "morse"
@@ -83,8 +82,14 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   /* char c; */
   int i = 0; int r = 0;
   /* char *usr_buffer; */
-  /* usr_buffer = vmalloc(length*sizeof(char)/5); */
-  usr_buffer = kmalloc(GFP_KERNEL, length*sizeof(char));
+//  usr_buffer = vmalloc(length*sizeof(char));
+//  /* usr_buffer = kmalloc(GFP_KERNEL, length*sizeof(char)); */
+//  if (usr_buffer < 0)
+//  {
+//    printk(KERN_INFO "vmalloc  ERROR");
+//    return -EFAULT;
+//  }
+
   while (length)
   {
     if (buffer[i] == '-' || buffer[i] == '.')
@@ -100,6 +105,7 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
       /* write c to buffer */
   printk(KERN_INFO "%c",c);
       /* usr_buffer[bytes_read] = c; */
+
       ++bytes_read;
       memset(charbuf, 0, 5);
       r = 0;
@@ -112,8 +118,9 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
 
       /* write c+<space> to buffer */
   printk(KERN_INFO "%c ",c);
-      /* usr_buffer[bytes_read] = c; */
-      /* usr_buffer[bytes_read+1] = ' '; */
+      usr_buffer[bytes_read] = c;
+      usr_buffer[bytes_read+1] = ' ';
+
       bytes_read += 2;
       memset(charbuf, 0, 5);
       r = 0;
@@ -126,8 +133,9 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
 
       /* write c+\0 to buffer */
   printk(KERN_INFO "%c\n",c);
-      /* usr_buffer[bytes_read] = c; */
-      /* usr_buffer[bytes_read+1] = '\n'; */
+      usr_buffer[bytes_read] = c;
+      usr_buffer[bytes_read+1] = '\0';
+
       bytes_read += 2;
 
       /* could break here... */
@@ -150,29 +158,14 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
                       "%zu to %zu.\n", PROCFS_NAME, PROCFS_SIZE/2, PROCFS_SIZE);
   }
 
-
-  //////////////////////////////////////
-  /* while (length > PROCFS_SIZE) */
-  /* { */
-  /*   PROCFS_SIZE *= 2; */
-  /*   char *new_kspace; */
-  /*   new_kspace = kmalloc(GFP_KERNEL, PROCFS_SIZE*sizeof(char)); */
-  /*   kfree(procfs_buffer); */
-  /*   procfs_buffer = new_kspace; */
-  /*   printk(KERN_INFO "/proc/%s: resized kmemory from " */
-  /*                     "%zu to %zu.\n", PROCFS_NAME, PROCFS_SIZE/2, PROCFS_SIZE); */
-  /* } */
-  /* bytes_read = length; */
-  //////////////////////////////////////
-
-  /* Write data to the buffer TODO: buffer is the word buffer now */
-    /* if (copy_from_user(procfs_buffer, buffer, bytes_read)) */
+  if (copy_from_user(procfs_buffer, buffer, length))
   /* if (copy_from_user(procfs_buffer, usr_buffer, bytes_read)) */
-  if (copy_from_user(procfs_buffer, (const char __user *) usr_buffer, bytes_read))
+  {
+    printk(KERN_INFO "HERE ERROR");
     return -EFAULT;
+  }
 
   /* vfree(usr_buffer); */
-  kfree(usr_buffer);
 
   return bytes_read;
 }
