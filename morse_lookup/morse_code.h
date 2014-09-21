@@ -4,6 +4,7 @@
 #define MORSE_SIZE 64
 
 char lookup(int index);
-int translate(char* arr);
+/* int translate(char* arr); */
+char translate(char* arr);
 
 #endif /* MORSE_CODE_H */

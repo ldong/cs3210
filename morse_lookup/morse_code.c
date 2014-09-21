@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include "morse_code.h"
 
-int translate(char* arr){
+/* int translate(char* arr){ */
+char translate(char* arr){
     int size = 0; // size of arr
     int index = 1;
     char const *ptr = arr;
