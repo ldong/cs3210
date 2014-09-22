@@ -9,14 +9,30 @@ else
 fi
 
 if [ -f /proc/morse ]; then
+  echo " "
+  echo "****************************"
+  echo "**  rmmod morse_module    **"
+  echo "****************************"
+  echo " "
   rmmod morse_module
   dmesg
 fi
 
-dmesg -C
-make clean && make && clear
+abort()
+{
+  echo >&2 '
+  *****************************
+  ** Make failed. Exiting... **"
+  *****************************'
+  exit 1
+}
+trap 'abort' 0
+set -e
+make clean && make
+trap : 0
 
 if [ -f morse_module.ko ]; then
+  echo " "
   echo "****************************"
   echo "** insmod morse_module.ko **"
   echo "****************************"
@@ -24,7 +40,6 @@ if [ -f morse_module.ko ]; then
   insmod morse_module.ko
   dmesg
   echo " "
-  dmesg -C
 fi
 
 echo "***********************"
