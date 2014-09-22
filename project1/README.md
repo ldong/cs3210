@@ -7,9 +7,15 @@ to `"- . ... - .. -. --.|... - .-. .. -. --."` which will translate to
 
 ## usage
 
-`chmod +x runtest.sh`
+`chmod +x runtest.sh cleanmod.sh`
 
-`./runtest`
+`./runtest.sh`
+
 or
+
 `./runtest "-.-. ... ...-- ..--- .---- -----|.--. .----"`
+
+Run `./cleanmod.sh` to unload the module and clean the directory if you want to
+commit any changes.
+
 

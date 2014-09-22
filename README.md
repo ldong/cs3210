@@ -1,2 +1,24 @@
 cs3210
 ======
+
+## Setup virtual image environment
+
+From factor-3210 ssh session
+
+```
+$ sudo -i
+# cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/
+# git clone https://github.com/leecom3025/cs3210.git
+# chmod +x configenv.sh
+# ./configenv.sh
+```
+
+Then exit out of the openstack virtual image and log back in as root
+
+```
+# exit
+$ exit
+
+user@factor-3210 $ ssh root@10.0.0.xx
+```
+
