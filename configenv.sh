@@ -1,9 +1,9 @@
 #!/bin/bash
 
-cp -i bashrc /root/.bashrc
-cp -i tmux.conf /root/.tmux.conf
-cp -i vimrc /root/.vimrc
-cp -i zshrc /root/.zshrc
+cp -v bashrc /root/.bashrc
+cp -v tmux.conf /root/.tmux.conf
+cp -v vimrc /root/.vimrc
+cp -v zshrc /root/.zshrc
 
 echo " "
 echo "*********************************************************"
