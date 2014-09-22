@@ -61,7 +61,7 @@ echo "Vundle..."
 git clone git://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 echo "oh-my-zsh..."
 git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.config/oh-my-zsh
-mv -i ~/cs3210/re5et_dlee440.zsh-theme ~/.config/oh-my-zsh/themes/
+cp -v ~/cs3210/dotfiles/re5et_dlee440.zsh-theme ~/.config/oh-my-zsh/themes/
 echo "base16-shell..."
 git clone git://github.com/chriskempson/base16-shell.git ~/.config/base16-shell
 echo "zsh-syntax-highlighting..."
