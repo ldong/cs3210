@@ -26,9 +26,11 @@ echo "*********************************************************"
 echo "*********************************************************"
 echo " "
 
+mv tmux.conf ~/.tmux.conf
+mv vimrc ~/.vimrc
+mv zshrc ~/.zshrc
 chsh -s $(which zsh) root
 chsh -s $(which zsh) ubuntu
-mv ~/cs3210/{.tmux.conf,.vimrc,.zshrc} ~/
 
 echo " "
 echo "*********************************************************"
