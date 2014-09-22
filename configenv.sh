@@ -1,5 +1,10 @@
 #!/bin/bash
 
+mv bashrc /root/.bashrc
+mv tmux.conf /root/.tmux.conf
+mv vimrc /root/.vimrc
+mv zshrc /root/.zshrc
+
 echo " "
 echo "*********************************************************"
 echo "*********************************************************"
@@ -26,9 +31,6 @@ echo "*********************************************************"
 echo "*********************************************************"
 echo " "
 
-mv tmux.conf ~/.tmux.conf
-mv vimrc ~/.vimrc
-mv zshrc ~/.zshrc
 chsh -s $(which zsh) root
 chsh -s $(which zsh) ubuntu
 
