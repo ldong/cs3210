@@ -4,8 +4,8 @@ README
 Implementation Design
 ---------------------
 
-1. A unique sequence using symbols (`.` for "dit" and `-` for "dah") that
-represents a character (letter or numeral) is delimited by a single space ` `.
+1. A unique sequence of symbols (`.` for "dit" and `-` for "dah") that
+represents a character (letter or numeral) are delimited by a single space ` `.
 
 2. The letters of a word are separated by a vertical bar `|`.
 
