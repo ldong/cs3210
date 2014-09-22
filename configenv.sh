@@ -1,9 +1,9 @@
 #!/bin/bash
 
 cp -v dotfiles/bashrc /root/.bashrc
-cp -v dotfiles/tmux.conf /root/.tmux.conf
-cp -v dotfiles/vimrc /root/.vimrc
 cp -v dotfiles/zshrc /root/.zshrc
+cp -v dotfiles/vimrc /root/.vimrc
+cp -v dotfiles/tmux.conf /root/.tmux.conf
 
 echo " "
 echo "*********************************************************"
