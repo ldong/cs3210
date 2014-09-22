@@ -25,9 +25,17 @@ echo "***********************"
 echo "** writing to procfs **"
 echo "***********************"
 echo " "
-echo "morse: $MORSE_CODE"
+echo "morse code:"
+echo "$MORSE_CODE"
 echo $MORSE_CODE > /proc/morse
 echo " "
 dmesg
 
+echo " "
+echo "*************************"
+echo "** reading from procfs **"
+echo "*************************"
+echo " "
+cat /proc/morse
+echo " "
 

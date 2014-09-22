@@ -11,8 +11,7 @@
 #include <asm/uaccess.h>    /* copy_from_user() */
 
 #include <linux/string.h>   /* strstr() */
-#include <linux/vmalloc.h>   /* strstr() */
-
+#include <linux/vmalloc.h>  /* vmalloc() */
 
 /* #include <linux/sched.h> */
 /* #include <linux/slab.h> */
@@ -23,24 +22,25 @@
 #define MORSE_SIZE 64
 char translate(char* arr);
 char lookup(int index);
-char charbuf[5];
-char *usr_buffer;
-char *new_kspace;
-char c;
+static char charbuf[5];         /* For translate() */
+static char c;                  /* Translated character */
+
+/* static char *morse2txt_buffer;  /1* Space for translated text *1/ */
+/* char *usr_buffer; */
+char *temp_kspace;
 ///
 
 /* Structure holds information about /proc file */
 static struct proc_dir_entry *morse_procfs;
-
-/* Buffer used to store characters for the module */
-static char *procfs_buffer;
-
-/* Size of the procfs buffer */
-static size_t PROCFS_SIZE = 8;
-static ssize_t bytes_read;
+static char *procfs_buffer;     /* Buffer to store characters for the module */
+static size_t procfs_size = 8;  /* Size of the procfs buffer */
+static ssize_t bytes_read;      /* bytes read/written */
 
 
-/* Function is called and /proc file is read */
+/*
+ * Function is called and /proc file is read
+ *
+ */
 static ssize_t morse_read(struct file *filep, char __user *buffer,
                 size_t length, loff_t *data)
 {
@@ -57,9 +57,12 @@ static ssize_t morse_read(struct file *filep, char __user *buffer,
       --length;
       ++bytes_read;
     }
+
+    /*
+     * proc_read() functions don't need to use copy_to_user();
+     * memcpy() does the job because the buffer lives in kernel memory
+     */
     /* memcpy(buffer, procfs_buffer, procfs_buffer_size); */
-    /* proc_read functions dont need to use copy_to_user, memcpy does the job
-     * b/c buffer lives in kernel memory.*/
     /* copy_to_user(buffer, procfs_buffer, procfs_buffer_size); */
   }
   return bytes_read;
@@ -71,9 +74,8 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
                 size_t length, loff_t *data)
 {
   printk(KERN_INFO "/proc/%s: morse_write() called.\n", PROCFS_NAME);
-  printk(KERN_INFO "/proc/%s: length: %zu \n", PROCFS_NAME, length);
+  printk(KERN_INFO "/proc/%s: buffer length: %zu \n", PROCFS_NAME, length);
 
-  int i = 0; int r = 0;
   bytes_read = 0;
 
   /* usr_buffer = vmalloc(length*sizeof(char)); */
@@ -84,82 +86,115 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   /*   return -EFAULT; */
   /* } */
 
-  while (length)
+/********************
+ * translation logic
+ ********************/
+
+  int idx = 0, symbol_sz = 0;
+  size_t morse_bytes = length; // testing, length fucking up code possibly
+  while (morse_bytes) // TODO: while (idx != length/morse_bytes)
   {
-    if (buffer[i] == '-' || buffer[i] == '.') ++r;
-    else if (buffer[i] == ' ')
+/******************
+* check for space
+******************/
+    if (bytes_read > procfs_size)
     {
-      memcpy(charbuf, buffer+i-r, r);
+      procfs_size *= 2;     /* Increase size by a factor of 2 */
+      temp_kspace = kmalloc(GFP_KERNEL, procfs_size*sizeof(char));
+      if (!temp_kspace)
+      {
+        printk(KERN_ALERT "/proc/%s: Error: morse_write(), kmalloc(), new_kspace \n", PROCFS_NAME);
+        return -ENOMEM;
+      }
+      printk(KERN_ALERT "/proc/%s: temp_kspace allocated %zu bytes.\n", PROCFS_NAME, procfs_size);
+
+      memcpy(temp_kspace, procfs_buffer, strlen(procfs_buffer));
+      kfree(procfs_buffer);
+      procfs_buffer = temp_kspace;
+      printk(KERN_INFO "/proc/%s: resized procfs_buffer from %zu to %zu "
+                       "bytes .\n", PROCFS_NAME, procfs_size/2, procfs_size);
+    }
+/*********************
+* check for space end
+**********************/
+
+    if (buffer[idx] == '-' || buffer[idx] == '.') ++symbol_sz;
+    else if (buffer[idx] == ' ')
+    {
+      memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
-      length -= (++r);
+      morse_bytes -= (++symbol_sz);
 
-      /* write c to buffer */
-
+      /*
+       * write c to buffer
+       */
       printk(KERN_INFO "%c",c);
       /* usr_buffer[bytes_read] = c; */
 
       ++bytes_read;
       memset(charbuf, 0, 5);
-      r = 0;
+      symbol_sz = 0;
     }
-    else if (buffer[i] == '|')
+    else if (buffer[idx] == '|')
     {
-      memcpy(charbuf, buffer+i-r, r);
+      memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
-      length -= (++r);
+      morse_bytes -= (++symbol_sz);
 
-      /* write c+<space> to buffer */
-
+      /*
+       * write c+<space> to buffer
+       */
       printk(KERN_INFO "%c ",c);
       /* usr_buffer[bytes_read] = c; */
       /* usr_buffer[bytes_read+1] = ' '; */
 
       bytes_read += 2;
       memset(charbuf, 0, 5);
-      r = 0;
+      symbol_sz = 0;
     }
-    else if (buffer[i] == '\0' || buffer[i] == '\n') // '\n' fixed it
+    /* else if (buffer[idx] == '\0' || buffer[idx] == '\n') // '\n' fixed it */
+    else if (buffer[idx] == '\n')
     {
-      memcpy(charbuf, buffer+i-r, r);
+      memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
-      length -= (++r);
+      morse_bytes -= (++symbol_sz);
 
-      /* write c+\0 to buffer */
+      /*
+       * write c+'\0' to buffer
+       */
 
       printk(KERN_INFO "%c\n",c);
       /* usr_buffer[bytes_read] = c; */
       /* usr_buffer[bytes_read+1] = '\0'; */
 
       bytes_read += 2;
-      break; // might not need
+      /* printk(KERN_INFO "HERE!!! morse_bytes: %zu\n", morse_bytes); */
+      /* break; // might not need. don't need b/c morse_bytes goes to 0, good */
     }
     /* else if (buffer[i] == '"') ; */
-    else printk(KERN_INFO "ERROR: /proc/%s: translation\n", PROCFS_NAME);
-    ++i;
-  }
+    else printk(KERN_INFO "/proc/%s: Error,translation\n", PROCFS_NAME);
 
-  printk(KERN_INFO "Translation complete\n"
-                   "bytes_read: %zu\nPROCFS_SIZE: %zu\n", bytes_read, PROCFS_SIZE);
-
-  while (bytes_read > PROCFS_SIZE)
-  {
-    PROCFS_SIZE *= 2;
-    new_kspace = kmalloc(GFP_KERNEL, PROCFS_SIZE*sizeof(char));
-    kfree(procfs_buffer);
-    procfs_buffer = new_kspace;
-    printk(KERN_INFO "/proc/%s: resized kmemory from "
-                      "%zu to %zu.\n", PROCFS_NAME, PROCFS_SIZE/2, PROCFS_SIZE);
+    ++idx;
+    /* printk(KERN_INFO "HAPPENED!!!idx: %zu\n", idx); */
   }
+  printk(KERN_INFO "/proc/%s: Translation complete\n"
+                   "bytes_read: %zu\nprocfs_size: %zu\n",
+                   PROCFS_NAME, bytes_read, procfs_size);
+
+/************************
+ * translation logic end
+ ************************/
 
   if (copy_from_user(procfs_buffer, buffer, length))
   /* if (copy_from_user(procfs_buffer, usr_buffer, bytes_read)) */
   {
-    printk(KERN_INFO "copy_from_user() error\n");
+    printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
     return -EFAULT;
   }
   /* vfree(usr_buffer); */
 
-  return bytes_read;
+  /* return bytes_read; */
+  return length;
 }
 
 
@@ -171,21 +206,31 @@ static struct file_operations proc_fops =
 };
 
 
-/* Called when module is loaded */
+/*
+ * Called when module is loaded
+ */
 static int __init morse_init(void)
 {
-  /* create the proc entry */
-  morse_procfs = proc_create(PROCFS_NAME, 0, NULL, &proc_fops);
-  procfs_buffer = kmalloc(GFP_KERNEL, PROCFS_SIZE*sizeof(char));
-
-  if (morse_procfs == NULL)
+  /* Allocate kernel memory */
+  procfs_buffer = kmalloc(GFP_KERNEL, procfs_size*sizeof(char));
+  if (!procfs_buffer)
   {
-    remove_proc_entry(PROCFS_NAME, NULL);
-    printk(KERN_ALERT "Error: Could not initialize /proc/%s\n", PROCFS_NAME);
+    printk(KERN_ALERT "/proc/%s: Error: morse_init() kmalloc\n", PROCFS_NAME);
     return -ENOMEM;
   }
+  printk(KERN_ALERT "/proc/%s: procfs_buffer allocated %zu bytes.\n", PROCFS_NAME, procfs_size);
+  memset(procfs_buffer, 0, procfs_size);
 
-  printk(KERN_INFO "init: /proc/%s loaded\n", PROCFS_NAME);
+  /* create the proc entry */
+  morse_procfs = proc_create(PROCFS_NAME, 0, NULL, &proc_fops);
+  if (morse_procfs == NULL)
+  {
+    kfree(procfs_buffer);
+    printk(KERN_ALERT "/proc/%s: Error: morse_init() failed to create proc entry\n", PROCFS_NAME);
+    return -ENOMEM;
+  }
+  printk(KERN_INFO "/proc/%s: module loaded\n", PROCFS_NAME);
+
   return 0; /* everything is ok */
 }
 
@@ -195,7 +240,7 @@ static void __exit morse_cleanup(void)
 {
   kfree(procfs_buffer);
   remove_proc_entry(PROCFS_NAME, NULL);
-  printk(KERN_INFO "cleanup: /proc/%s unloaded\n", PROCFS_NAME);
+  printk(KERN_INFO "/proc/%s: module unloaded\n", PROCFS_NAME);
 }
 
 
