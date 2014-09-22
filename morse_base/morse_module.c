@@ -25,8 +25,6 @@ char lookup(int index);
 static char charbuf[5];         /* For translate() */
 static char c;                  /* Translated character */
 
-/* static char *morse2txt_buffer;  /1* Space for translated text *1/ */
-/* char *usr_buffer; */
 char *temp_kspace;
 ///
 
@@ -78,23 +76,16 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
 
   bytes_read = 0;
 
-  /* usr_buffer = vmalloc(length*sizeof(char)); */
-  /* usr_buffer = kmalloc(GFP_KERNEL, length*sizeof(char)); */
-  /* if (usr_buffer < 0) */
-  /* { */
-  /*   printk(KERN_INFO "vmalloc  ERROR"); */
-  /*   return -EFAULT; */
-  /* } */
-
 /********************
  * translation logic
  ********************/
 
   int idx = 0, symbol_sz = 0;
-  size_t morse_bytes = length; // testing, length fucking up code possibly
-  while (morse_bytes) // TODO: while (idx != length/morse_bytes)
+//  size_t morse_bytes = length; //using length in while loop was fucking things up
+//  while (morse_bytes)
+  while (idx != length)
   {
-/******************
+/*****************
 * check for space
 ******************/
     if (bytes_read > procfs_size)
@@ -123,13 +114,32 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
     {
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
-      morse_bytes -= (++symbol_sz);
 
       /*
        * write c to buffer
        */
-      printk(KERN_INFO "%c",c);
-      /* usr_buffer[bytes_read] = c; */
+      /* printk(KERN_INFO "%c",c); */
+/*****************
+* alloc
+******************/
+      char *b;
+      b = kmalloc(GFP_KERNEL, 2*sizeof(char));
+      if (!b)
+      {
+        printk(KERN_ALERT "/proc/%s: Error: kmalloc(), b \n", PROCFS_NAME);
+        return -ENOMEM;
+      }
+      b[0] = c; b[1] = '\0';
+
+      if (copy_from_user(procfs_buffer+bytes_read, b, 1))
+      {
+        printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
+        return -EFAULT;
+      }
+      kfree(b);
+/*********************
+* write to procfs end
+**********************/
 
       ++bytes_read;
       memset(charbuf, 0, 5);
@@ -139,14 +149,32 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
     {
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
-      morse_bytes -= (++symbol_sz);
 
       /*
        * write c+<space> to buffer
        */
-      printk(KERN_INFO "%c ",c);
-      /* usr_buffer[bytes_read] = c; */
-      /* usr_buffer[bytes_read+1] = ' '; */
+      /* printk(KERN_INFO "%c ",c); */
+/*****************
+* alloc
+******************/
+      char *b;
+      b = kmalloc(GFP_KERNEL, 3*sizeof(char));
+      if (!b)
+      {
+        printk(KERN_ALERT "/proc/%s: Error: kmalloc(), b \n", PROCFS_NAME);
+        return -ENOMEM;
+      }
+      b[0] = c; b[1] = ' '; b[2] = '\0';
+
+      if (copy_from_user(procfs_buffer+bytes_read, b, 2))
+      {
+        printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
+        return -EFAULT;
+      }
+      kfree(b);
+/*********************
+* write to procfs end
+**********************/
 
       bytes_read += 2;
       memset(charbuf, 0, 5);
@@ -157,44 +185,53 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
     {
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
-      morse_bytes -= (++symbol_sz);
 
       /*
        * write c+'\0' to buffer
        */
-
       printk(KERN_INFO "%c\n",c);
-      /* usr_buffer[bytes_read] = c; */
-      /* usr_buffer[bytes_read+1] = '\0'; */
+/*****************
+* alloc
+******************/
+      char *b;
+      b = kmalloc(GFP_KERNEL, 2*sizeof(char));
+      if (!b)
+      {
+        printk(KERN_ALERT "/proc/%s: Error: kmalloc(), b \n", PROCFS_NAME);
+        return -ENOMEM;
+      }
+      b[0] = c; b[1] = '\n';
+
+      if (copy_from_user(procfs_buffer+bytes_read, b, 2))
+      {
+        printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
+        return -EFAULT;
+      }
+      kfree(b);
+/*********************
+* write to procfs end
+**********************/
 
       bytes_read += 2;
-      /* printk(KERN_INFO "HERE!!! morse_bytes: %zu\n", morse_bytes); */
-      /* break; // might not need. don't need b/c morse_bytes goes to 0, good */
     }
-    /* else if (buffer[i] == '"') ; */
     else printk(KERN_INFO "/proc/%s: Error,translation\n", PROCFS_NAME);
 
     ++idx;
-    /* printk(KERN_INFO "HAPPENED!!!idx: %zu\n", idx); */
   }
   printk(KERN_INFO "/proc/%s: Translation complete\n"
                    "bytes_read: %zu\nprocfs_size: %zu\n",
                    PROCFS_NAME, bytes_read, procfs_size);
-
 /************************
  * translation logic end
  ************************/
 
-  if (copy_from_user(procfs_buffer, buffer, length))
-  /* if (copy_from_user(procfs_buffer, usr_buffer, bytes_read)) */
-  {
-    printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
-    return -EFAULT;
-  }
-  /* vfree(usr_buffer); */
-
-  /* return bytes_read; */
-  return length;
+  return bytes_read;
+//  if (copy_from_user(procfs_buffer, buffer, length))
+//  {
+//    printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
+//    return -EFAULT;
+//  }
+//  return length;
 }
 
 
