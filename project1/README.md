@@ -56,7 +56,7 @@ Usage
 
 or
 
-`./runtest "-.-. ... ...-- ..--- .---- -----|.--. .----"`
+`./runtest.sh "-.-. ... ...-- ..--- .---- -----|.--. .----"`
 
 Run `./cleanmod.sh` to unload the module and clean the directory if you want to
 commit any changes.
