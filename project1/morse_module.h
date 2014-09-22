@@ -13,16 +13,40 @@
 #define MORSE_SYMBOL_MAX    5
 
 
-static char charbuf[MORSE_SYMBOL_MAX];  /* For translate() */
-static char c;                          /* Translated character */
-static char *temp_kspace;               /* For dynamic resizing */
-
-
 /* Structure holds information about /proc/ file */
 static struct proc_dir_entry *morse_procfs;
 static char *procfs_buffer;             /* module buffer */
 static size_t procfs_size;              /* Size of the procfs buffer */
 static ssize_t bytes_read;              /* bytes read/written */
+static char charbuf[MORSE_SYMBOL_MAX];  /* For translate() */
+static char c;                          /* Translated character */
+static char *temp_kspace;               /* For dynamic resizing */
+
+
+#define MORSE_SIZE          64
+
+char translate(char *arr);
+char lookup(int index);
+
+const char morse[MORSE_SIZE] =
+{ /* index from 1 */
+  '?'
+  ,'?'
+  ,'E' ,'T'
+  ,'I' ,'A' ,'N' ,'M'
+  ,'S' ,'U' ,'R' ,'W' ,'?' ,'K' , 'G', 'O'
+  ,'H' ,'V' ,'F' ,'?' ,'L' ,'?' , 'P', 'J'
+  ,'B' ,'X' ,'C' ,'Y' ,'Z' ,'Q' , '?', '?'
+  ,'5' ,'4' ,'?' ,'3'
+  ,'?' ,'?' ,'?' ,'2'
+  ,'?' ,'?' ,'?' ,'?'
+  ,'?' ,'?' ,'?' ,'1'
+  ,'6' ,'?' ,'?' ,'?'
+  ,'?' ,'?' ,'?' ,'?'
+  ,'7' ,'?' ,'?' ,'?'
+  ,'8' ,'?' ,'9' ,'0'
+};
 
 
 #endif /* MORSE_MODULE_H */
+

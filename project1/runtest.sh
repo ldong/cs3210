@@ -10,9 +10,9 @@ fi
 
 if [ -f /proc/morse2txt ]; then
   echo >&1 '
-****************************
-**    Unloading module    **
-****************************
+*********************************
+**       Unloading module      **
+*********************************
 '
   rmmod morse_module
   dmesg
@@ -22,13 +22,14 @@ abort()
 {
   echo >&2 '
 *********************************
-**   Make failed. Exiting...   **
+**   Make failed! Exiting...   **
 *********************************
 '
   exit 1
 }
 trap 'abort' 0
 set -e
+
 echo >&1 '
 *********************************
 **        Running Make         **
@@ -39,32 +40,31 @@ trap : 0
 
 if [ -f morse_module.ko ]; then
   echo >&1 '
-****************************
-**     Loading module     **
-****************************
+*********************************
+**        Loading module       **
+*********************************
 '
   insmod morse_module.ko
   dmesg
-  echo " "
 fi
 
 echo >&1 '
-***********************"
-** writing to procfs **"
-***********************"
-echo "\$ echo \"$MORSE_CODE\" > /proc/morse2txt"
+*********************************
+**      Writing to procfs      **
+*********************************
 '
+echo "\$ echo "$MORSE_CODE" > /proc/morse2txt
+"
 echo $MORSE_CODE > /proc/morse2txt
-echo " "
 dmesg
 
-echo " "
-echo "*************************"
-echo "** reading from procfs **"
-echo "*************************"
-echo " "
-echo "\$ cat /proc/morse2txt"
-echo " "
+echo >&1 '
+*********************************
+**     Reading from procfs     **
+*********************************
+
+$ cat /proc/morse2txt
+'
 cat /proc/morse2txt
 echo " "
 
