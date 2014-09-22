@@ -6,6 +6,7 @@ cs3210
 From factor-3210 ssh session
 
 ```
+user@factor-3210 $ ssh ubuntu@10.0.0.xx
 $ sudo -i
 # cp /home/ubuntu/.ssh/authorized_keys /root/.ssh/
 # git clone https://github.com/leecom3025/cs3210.git
