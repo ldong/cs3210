@@ -74,164 +74,163 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   printk(KERN_INFO "/proc/%s: morse_write() called.\n", PROCFS_NAME);
   printk(KERN_INFO "/proc/%s: buffer length: %zu \n", PROCFS_NAME, length);
 
-  bytes_read = 0;
-
-/********************
- * translation logic
- ********************/
-
-  int idx = 0, symbol_sz = 0;
-//  size_t morse_bytes = length; //using length in while loop was fucking things up
-//  while (morse_bytes)
-  while (idx != length)
+  while (length > procfs_size)
   {
-/*****************
-* check for space
-******************/
-    if (bytes_read > procfs_size)
+    procfs_size *= 2;     /* Increase size by a factor of 2 */
+    temp_kspace = kmalloc(GFP_KERNEL, procfs_size*sizeof(char));
+    if (!temp_kspace)
     {
-      procfs_size *= 2;     /* Increase size by a factor of 2 */
-      temp_kspace = kmalloc(GFP_KERNEL, procfs_size*sizeof(char));
-      if (!temp_kspace)
-      {
-        printk(KERN_ALERT "/proc/%s: Error: morse_write(), kmalloc(), new_kspace \n", PROCFS_NAME);
-        return -ENOMEM;
-      }
-      printk(KERN_ALERT "/proc/%s: temp_kspace allocated %zu bytes.\n", PROCFS_NAME, procfs_size);
-
-      memcpy(temp_kspace, procfs_buffer, strlen(procfs_buffer));
-      kfree(procfs_buffer);
-      procfs_buffer = temp_kspace;
-      printk(KERN_INFO "/proc/%s: resized procfs_buffer from %zu to %zu "
-                       "bytes .\n", PROCFS_NAME, procfs_size/2, procfs_size);
+      printk(KERN_ALERT "/proc/%s: Error: morse_write(), kmalloc(), new_kspace \n", PROCFS_NAME);
+      return -ENOMEM;
     }
-/*********************
-* check for space end
-**********************/
+    printk(KERN_ALERT "/proc/%s: temp_kspace allocated %zu bytes.\n", PROCFS_NAME, procfs_size);
 
-    if (buffer[idx] == '-' || buffer[idx] == '.') ++symbol_sz;
-    else if (buffer[idx] == ' ')
-    {
-      memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
-      c = translate(charbuf);
-
-      /*
-       * write c to buffer
-       */
-      /* printk(KERN_INFO "%c",c); */
-/*****************
-* alloc
-******************/
-      char *b;
-      b = kmalloc(GFP_KERNEL, 2*sizeof(char));
-      if (!b)
-      {
-        printk(KERN_ALERT "/proc/%s: Error: kmalloc(), b \n", PROCFS_NAME);
-        return -ENOMEM;
-      }
-      b[0] = c; b[1] = '\0';
-
-      if (copy_from_user(procfs_buffer+bytes_read, b, 1))
-      {
-        printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
-        return -EFAULT;
-      }
-      kfree(b);
-/*********************
-* write to procfs end
-**********************/
-
-      ++bytes_read;
-      memset(charbuf, 0, 5);
-      symbol_sz = 0;
-    }
-    else if (buffer[idx] == '|')
-    {
-      memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
-      c = translate(charbuf);
-
-      /*
-       * write c+<space> to buffer
-       */
-      /* printk(KERN_INFO "%c ",c); */
-/*****************
-* alloc
-******************/
-      char *b;
-      b = kmalloc(GFP_KERNEL, 3*sizeof(char));
-      if (!b)
-      {
-        printk(KERN_ALERT "/proc/%s: Error: kmalloc(), b \n", PROCFS_NAME);
-        return -ENOMEM;
-      }
-      b[0] = c; b[1] = ' '; b[2] = '\0';
-
-      if (copy_from_user(procfs_buffer+bytes_read, b, 2))
-      {
-        printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
-        return -EFAULT;
-      }
-      kfree(b);
-/*********************
-* write to procfs end
-**********************/
-
-      bytes_read += 2;
-      memset(charbuf, 0, 5);
-      symbol_sz = 0;
-    }
-    /* else if (buffer[idx] == '\0' || buffer[idx] == '\n') // '\n' fixed it */
-    else if (buffer[idx] == '\n')
-    {
-      memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
-      c = translate(charbuf);
-
-      /*
-       * write c+'\0' to buffer
-       */
-      printk(KERN_INFO "%c\n",c);
-/*****************
-* alloc
-******************/
-      char *b;
-      b = kmalloc(GFP_KERNEL, 2*sizeof(char));
-      if (!b)
-      {
-        printk(KERN_ALERT "/proc/%s: Error: kmalloc(), b \n", PROCFS_NAME);
-        return -ENOMEM;
-      }
-      b[0] = c; b[1] = '\n';
-
-      if (copy_from_user(procfs_buffer+bytes_read, b, 2))
-      {
-        printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
-        return -EFAULT;
-      }
-      kfree(b);
-/*********************
-* write to procfs end
-**********************/
-
-      bytes_read += 2;
-    }
-    else printk(KERN_INFO "/proc/%s: Error,translation\n", PROCFS_NAME);
-
-    ++idx;
+    memcpy(temp_kspace, procfs_buffer, strlen(procfs_buffer));
+    kfree(procfs_buffer);
+    procfs_buffer = temp_kspace;
+    printk(KERN_INFO "/proc/%s: resized procfs_buffer from %zu to %zu "
+                     "bytes .\n", PROCFS_NAME, procfs_size/2, procfs_size);
   }
-  printk(KERN_INFO "/proc/%s: Translation complete\n"
-                   "bytes_read: %zu\nprocfs_size: %zu\n",
-                   PROCFS_NAME, bytes_read, procfs_size);
-/************************
- * translation logic end
- ************************/
 
-  return bytes_read;
-//  if (copy_from_user(procfs_buffer, buffer, length))
+///********************
+// * translation logic
+// ********************/
+//  bytes_read = 0;
+//
+//  int idx = 0, symbol_sz = 0;
+////  size_t morse_bytes = length; //using length in while loop was fucking things up
+////  while (morse_bytes)
+//  while (idx != length)
 //  {
-//    printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
-//    return -EFAULT;
+///*****************
+//* check for space
+//******************/
+//    if (bytes_read > procfs_size)
+//    {
+//      procfs_size *= 2;     /* Increase size by a factor of 2 */
+//      temp_kspace = kmalloc(GFP_KERNEL, procfs_size*sizeof(char));
+//      if (!temp_kspace)
+//      {
+//        printk(KERN_ALERT "/proc/%s: Error: morse_write(), kmalloc(), new_kspace \n", PROCFS_NAME);
+//        return -ENOMEM;
+//      }
+//      printk(KERN_ALERT "/proc/%s: temp_kspace allocated %zu bytes.\n", PROCFS_NAME, procfs_size);
+//
+//      memcpy(temp_kspace, procfs_buffer, strlen(procfs_buffer));
+//      kfree(procfs_buffer);
+//      procfs_buffer = temp_kspace;
+//      printk(KERN_INFO "/proc/%s: resized procfs_buffer from %zu to %zu "
+//                       "bytes .\n", PROCFS_NAME, procfs_size/2, procfs_size);
+//    }
+///*********************
+//* check for space end
+//**********************/
+//
+//    if (buffer[idx] == '-' || buffer[idx] == '.') ++symbol_sz;
+//    else if (buffer[idx] == ' ')
+//    {
+//      memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
+//      c = translate(charbuf);
+//
+//      /*
+//       * write c to buffer
+//       */
+//      /* printk(KERN_INFO "%c",c); */
+///*****************
+//* write to procfs
+//******************/
+//      if (copy_from_user(procfs_buffer+bytes_read, &c, 1))
+//      {
+//        printk(KERN_INFO "/proc/%s: copy_from_user() 1 error\n", PROCFS_NAME);
+//        return -EFAULT;
+//      }
+///*********************
+//* write to procfs end
+//**********************/
+//
+//      ++bytes_read;
+//      memset(charbuf, 0, 5);
+//      symbol_sz = 0;
+//    }
+//    else if (buffer[idx] == '|')
+//    {
+//      memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
+//      c = translate(charbuf);
+//
+//      /*
+//       * write c+<space> to buffer
+//       */
+//      /* printk(KERN_INFO "%c ",c); */
+///*****************
+//* write to procfs
+//******************/
+//      if (copy_from_user(procfs_buffer+bytes_read, &c, 1))
+//      {
+//        printk(KERN_INFO "/proc/%s: copy_from_user() 2 error\n", PROCFS_NAME);
+//        return -EFAULT;
+//      }
+//      c = ' ';
+//      if (copy_from_user(procfs_buffer+bytes_read, &c, 1))
+//      {
+//        printk(KERN_INFO "/proc/%s: copy_from_user() 2 error\n", PROCFS_NAME);
+//        return -EFAULT;
+//      }
+///*********************
+//* write to procfs end
+//**********************/
+//
+//      bytes_read += 2;
+//      memset(charbuf, 0, 5);
+//      symbol_sz = 0;
+//    }
+//    /* else if (buffer[idx] == '\0' || buffer[idx] == '\n') // '\n' fixed it */
+//    else if (buffer[idx] == '\n')
+//    {
+//      memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
+//      c = translate(charbuf);
+//
+//      /*
+//       * write c+'\0' to buffer
+//       */
+//      printk(KERN_INFO "%c\n",c);
+///*****************
+//* write to procfs
+//******************/
+//      if (copy_from_user(procfs_buffer+bytes_read, &c, 1))
+//      {
+//        printk(KERN_INFO "/proc/%s: copy_from_user() 3 error\n", PROCFS_NAME);
+//        return -EFAULT;
+//      }
+//      c = '\n';
+//      if (copy_from_user(procfs_buffer+bytes_read, &c, 1))
+//      {
+//        printk(KERN_INFO "/proc/%s: copy_from_user() 3 error\n", PROCFS_NAME);
+//        return -EFAULT;
+//      }
+///*********************
+//* write to procfs end
+//**********************/
+//
+//      bytes_read += 2;
+//    }
+//    else printk(KERN_INFO "/proc/%s: Error,translation\n", PROCFS_NAME);
+//
+//    ++idx;
 //  }
-//  return length;
+//  printk(KERN_INFO "/proc/%s: Translation complete\n"
+//                   "bytes_read: %zu\nprocfs_size: %zu\n",
+//                   PROCFS_NAME, bytes_read, procfs_size);
+///************************
+// * translation logic end
+// ************************/
+
+  /* return bytes_read; */
+  if (copy_from_user(procfs_buffer, buffer, length))
+  {
+    printk(KERN_INFO "/proc/%s: copy_from_user() error\n", PROCFS_NAME);
+    return -EFAULT;
+  }
+  return length;
 }
 
 
