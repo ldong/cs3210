@@ -40,8 +40,11 @@ Automated build
 ---------------
 
 If a morse code sequence is given as an argument, it will be translated.
-Otherwise a default string sequence `"- . ... - .. -. --.|... - .-. .. -. --."`
-will be written to the procfs file which translate to `TESTING STRING` after
+Otherwise a default string sequence 
+
+`"- . ... - .. -. --.|... - .-. .. -. --."`
+
+will be written to the procfs file which translates to `TESTING STRING` after
 reading.
 
 Usage
