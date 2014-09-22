@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -f /proc/morse ]; then
+if [ -f /proc/morse2txt ]; then
   rmmod morse_module
 fi
 

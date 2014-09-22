@@ -17,28 +17,14 @@
  */
 
 
-#include <linux/module.h>       /* module */
-#include <linux/kernel.h>       /* kernel stuff */
-#include <linux/proc_fs.h>      /* using proc fs */
-#include <linux/slab.h>         /* kmalloc() */
-#include <asm/uaccess.h>        /* copy_from_user() */
+#include "/root/cs3210/project1/morse_module.h"
 
 
-#define PROCFS_NAME         "morse"
 #define MORSE_SIZE          64
 
 
 char translate(char* arr);
 char lookup(int index);
-static char charbuf[5];         /* For translate() */
-static char c;                  /* Translated character */
-static char *temp_kspace;
-
-/* Structure holds information about /proc file */
-static struct proc_dir_entry *morse_procfs;
-static char *procfs_buffer;     /* Buffer to store characters for the module */
-static size_t procfs_size = 8;  /* Size of the procfs buffer */
-static ssize_t bytes_read;      /* bytes read/written */
 
 
 /**
@@ -82,9 +68,10 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
 {
   printk(KERN_INFO "/proc/%s: morse_write() called.\n", PROCFS_NAME);
   printk(KERN_INFO "/proc/%s: buffer length: %zu \n", PROCFS_NAME, length);
+  procfs_size = 8;      /* Begin with 8-bytes on every write */
 
   /* Allocate kernel memory */
-  procfs_buffer = kmalloc(GFP_KERNEL, 8*sizeof(char));
+  procfs_buffer = kmalloc(GFP_KERNEL, procfs_size*sizeof(char));
   if (!procfs_buffer)
   {
     printk(KERN_ALERT "/proc/%s: Error: morse_init() kmalloc\n", PROCFS_NAME);
@@ -146,7 +133,6 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
       symbol_sz = 0;
     }
     else if (buffer[idx] == '\0' || buffer[idx] == '\n') // '\n' fixed it
-    /* else if (buffer[idx] == '\n') */
     { /* Write 2-bytes, character and newline */
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
