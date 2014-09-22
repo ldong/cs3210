@@ -102,7 +102,7 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
 
   while (idx != length)
   {
-    if (bytes_read > procfs_size)
+    if (bytes_read+2 > procfs_size)
     { /* check for space */
       procfs_size *= 2;     /* Increase size by a factor of 2 */
       temp_kspace = kmalloc(GFP_KERNEL, procfs_size*sizeof(char));
