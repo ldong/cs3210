@@ -74,12 +74,8 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   printk(KERN_ALERT "/proc/%s: procfs_buffer allocated %zu bytes.\n", PROCFS_NAME, procfs_size);
   memset(procfs_buffer, 0, procfs_size);
 
-
-/********************
- * translation logic
- ********************/
+  /* translation logic */
   bytes_read = 0;
-
   while (idx != length)
   {
     if (bytes_read+6 > procfs_size)
@@ -98,7 +94,7 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
       memset(charbuf, 0, 5);
       symbol_sz = 0;
     }
-    else if (buffer[idx] == '|')
+    else if (buffer[idx] == '|' || buffer[idx] == '/')
     { /* Write 2-bytes, character + <space> */
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
@@ -122,17 +118,14 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
 
       bytes_read += 2;
     }
-    else printk(KERN_INFO "/proc/%s: Error,translation\n", PROCFS_NAME);
+    else printk(KERN_INFO "/proc/%s: Translation error\n", PROCFS_NAME);
 
     ++idx;
-  }
+  } /* end of translation logic */
+
   printk(KERN_INFO "/proc/%s: Translation complete\n"
                    "bytes_read: %zu\nprocfs_size: %zu\n",
                    PROCFS_NAME, bytes_read, procfs_size);
-/************************
- * translation logic end
- ************************/
-
   return length;
 }
 
@@ -160,7 +153,6 @@ static int __init morse_init(void)
     return -ENOMEM;
   }
   printk(KERN_INFO "/proc/%s: module loaded\n", PROCFS_NAME);
-
   return 0; /* everything is ok */
 }
 
