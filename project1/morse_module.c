@@ -85,8 +85,7 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
     else if (buffer[idx] == ' ')
     { /* Write 1-byte character */
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
-      c = translate(charbuf);
-      memcpy(procfs_buffer+bytes_read, &c, 1);
+      c = translate(charbuf); memcpy(procfs_buffer+bytes_read, &c, 1);
 
       ++bytes_read;
       memset(charbuf, 0, 5);
@@ -95,11 +94,8 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
     else if (buffer[idx] == '|' || buffer[idx] == '/')
     { /* Write 2-bytes, character + <space> */
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
-      c = translate(charbuf);
-      memcpy(procfs_buffer+bytes_read, &c, 1);
-
-      c = ' ';
-      memcpy(procfs_buffer+bytes_read+1, &c, 1);
+      c = translate(charbuf); memcpy(procfs_buffer+bytes_read, &c, 1);
+      c = ' ';                memcpy(procfs_buffer+bytes_read+1, &c, 1);
 
       bytes_read += 2;
       memset(charbuf, 0, 5);
@@ -108,11 +104,8 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
     else if (buffer[idx] == '\0' || buffer[idx] == '\n') // '\n' fixed it
     { /* Write 2-bytes, character and newline */
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
-      c = translate(charbuf);
-      memcpy(procfs_buffer+bytes_read, &c, 1);
-
-      c = '\n';
-      memcpy(procfs_buffer+bytes_read+1, &c, 1);
+      c = translate(charbuf); memcpy(procfs_buffer+bytes_read, &c, 1);
+      c = '\n';               memcpy(procfs_buffer+bytes_read+1, &c, 1);
 
       bytes_read += 2;
     }
