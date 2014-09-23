@@ -78,10 +78,8 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   bytes_read = 0;
   while (idx != length)
   {
-    if (bytes_read+6 > procfs_size)
-    { /* check for space */
+    if (bytes_read+6 > procfs_size)     /* check for space */
       if (!resize_buffer()) return -ENOMEM;
-    }
 
     if (buffer[idx] == '-' || buffer[idx] == '.') ++symbol_sz;
     else if (buffer[idx] == ' ')
