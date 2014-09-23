@@ -78,7 +78,12 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   bytes_read = 0;
   while (idx != length)
   {
-    if (bytes_read+6 > procfs_size)     /* check for space */
+
+    /*
+     * Check if private memory can hold 1 char + '\n'
+     * Otherwise resize by a factor of 2
+     */
+    if (bytes_read+2 > procfs_size)
       if (!resize_buffer()) return -ENOMEM;
 
     if (buffer[idx] == '-' || buffer[idx] == '.') ++symbol_sz;
