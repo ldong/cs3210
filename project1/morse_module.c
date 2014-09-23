@@ -59,6 +59,7 @@ static ssize_t morse_read(struct file *filep, char __user *buffer,
 static ssize_t morse_write(struct file *filep, const char __user *buffer,
                 size_t length, loff_t *data)
 {
+  int idx = 0, symbol_sz = 0;
   printk(KERN_INFO "/proc/%s: morse_write() called.\n", PROCFS_NAME);
   printk(KERN_INFO "/proc/%s: buffer length: %zu \n", PROCFS_NAME, length);
   procfs_size = 8;      /* Begin with 8-bytes on every write */
@@ -78,34 +79,19 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
  * translation logic
  ********************/
   bytes_read = 0;
-  int idx = 0, symbol_sz = 0;
 
   while (idx != length)
   {
-    if (bytes_read+2 > procfs_size)
+    if (bytes_read+6 > procfs_size)
     { /* check for space */
-      procfs_size *= 2;     /* Increase size by a factor of 2 */
-      temp_kspace = kmalloc(GFP_KERNEL, procfs_size*sizeof(char));
-      if (!temp_kspace)
-      {
-        printk(KERN_ALERT "/proc/%s: Error: morse_write(), kmalloc(), new_kspace \n", PROCFS_NAME);
-        return -ENOMEM;
-      }
-      printk(KERN_ALERT "/proc/%s: temp_kspace allocated %zu bytes.\n", PROCFS_NAME, procfs_size);
-
-      memcpy(temp_kspace, procfs_buffer, strlen(procfs_buffer));
-      kfree(procfs_buffer);
-      procfs_buffer = temp_kspace;
-      printk(KERN_INFO "/proc/%s: resized procfs_buffer from %zu to %zu "
-                       "bytes .\n", PROCFS_NAME, procfs_size/2, procfs_size);
-    } /* check for space end */
+      if (!resize_buffer()) return -ENOMEM;
+    }
 
     if (buffer[idx] == '-' || buffer[idx] == '.') ++symbol_sz;
     else if (buffer[idx] == ' ')
     { /* Write 1-byte character */
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
-
       memcpy(procfs_buffer+bytes_read, &c, 1);
 
       ++bytes_read;
@@ -116,8 +102,8 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
     { /* Write 2-bytes, character + <space> */
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
-
       memcpy(procfs_buffer+bytes_read, &c, 1);
+
       c = ' ';
       memcpy(procfs_buffer+bytes_read+1, &c, 1);
 
@@ -129,8 +115,8 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
     { /* Write 2-bytes, character and newline */
       memcpy(charbuf, buffer+idx-symbol_sz, symbol_sz);
       c = translate(charbuf);
-
       memcpy(procfs_buffer+bytes_read, &c, 1);
+
       c = '\n';
       memcpy(procfs_buffer+bytes_read+1, &c, 1);
 
@@ -195,6 +181,31 @@ MODULE_DESCRIPTION("Morse code procfs kernel module");
 MODULE_AUTHOR("CS3210 - Group 2");
 module_init(morse_init);
 module_exit(morse_cleanup);
+
+
+/**
+ *
+ *
+ */
+int resize_buffer(void)
+{
+  static char *temp_kspace;
+  procfs_size *= 2;     /* Increase size by a factor of 2 */
+  temp_kspace = kmalloc(GFP_KERNEL, procfs_size*sizeof(char));
+  if (!temp_kspace)
+  {
+    printk(KERN_ALERT "/proc/%s: Error: morse_write(), kmalloc(), new_kspace \n", PROCFS_NAME);
+    return -ENOMEM;
+  }
+  printk(KERN_ALERT "/proc/%s: temp_kspace allocated %zu bytes.\n", PROCFS_NAME, procfs_size);
+
+  memcpy(temp_kspace, procfs_buffer, strlen(procfs_buffer));
+  kfree(procfs_buffer);
+  procfs_buffer = temp_kspace;
+  printk(KERN_INFO "/proc/%s: resized procfs_buffer from %zu to %zu "
+                   "bytes .\n", PROCFS_NAME, procfs_size/2, procfs_size);
+  return 1;
+}
 
 
 /**

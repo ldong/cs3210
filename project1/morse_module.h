@@ -20,11 +20,12 @@ static size_t procfs_size;              /* Size of the procfs buffer */
 static ssize_t bytes_read;              /* bytes read/written */
 static char charbuf[MORSE_SYMBOL_MAX];  /* For translate() */
 static char c;                          /* Translated character */
-static char *temp_kspace;               /* For dynamic resizing */
+/* static char *temp_kspace;               /1* For dynamic resizing *1/ */
 
 
 #define MORSE_SIZE          64
 
+int resize_buffer(void);
 char translate(char *arr);
 char lookup(int index);
 
@@ -34,7 +35,7 @@ const char morse[MORSE_SIZE] =
   ,'?'
   ,'E' ,'T'
   ,'I' ,'A' ,'N' ,'M'
-  ,'S' ,'U' ,'R' ,'W' ,'?' ,'K' , 'G', 'O'
+  ,'S' ,'U' ,'R' ,'W' ,'D' ,'K' , 'G', 'O'
   ,'H' ,'V' ,'F' ,'?' ,'L' ,'?' , 'P', 'J'
   ,'B' ,'X' ,'C' ,'Y' ,'Z' ,'Q' , '?', '?'
   ,'5' ,'4' ,'?' ,'3'
