@@ -47,6 +47,7 @@ static ssize_t morse_read(struct file *filep, char __user *buffer,
     /* memcpy(buffer, procfs_buffer, procfs_buffer_size); */
     /* copy_to_user(buffer, procfs_buffer, procfs_buffer_size); */
   }
+  overwrite = 0;
   kfree(procfs_buffer);
   return bytes_read;
 }
@@ -63,6 +64,12 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   printk(KERN_INFO "/proc/%s: morse_write() called.\n", PROCFS_NAME);
   printk(KERN_INFO "/proc/%s: buffer length: %zu \n", PROCFS_NAME, length);
   procfs_size = 8;      /* Begin with 8-bytes on every write */
+
+  if (overwrite)
+  {
+    printk(KERN_INFO "/proc/%s: Overwriting. Freeing existing memory", PROCFS_NAME);
+    kfree(procfs_buffer);
+  }
 
   /* Allocate kernel memory */
   procfs_buffer = kmalloc(GFP_KERNEL, procfs_size*sizeof(char));
@@ -93,7 +100,7 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
       c = translate(charbuf); memcpy(procfs_buffer+bytes_read, &c, 1);
 
       ++bytes_read;
-      memset(charbuf, 0, 5);
+      memset(charbuf, 0, MORSE_SYMBOL_MAX);
       symbol_sz = 0;
     }
     else if (buffer[idx] == '|' || buffer[idx] == '/')
@@ -119,6 +126,7 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
     ++idx;
   } /* end of translation logic */
 
+  overwrite = 1;
   printk(KERN_INFO "/proc/%s: Translation complete\n"
                    "bytes_read: %zu\nprocfs_size: %zu\n",
                    PROCFS_NAME, bytes_read, procfs_size);
@@ -148,6 +156,7 @@ static int __init morse_init(void)
     printk(KERN_ALERT "/proc/%s: Error: morse_init() failed to create proc entry\n", PROCFS_NAME);
     return -ENOMEM;
   }
+  overwrite = 0;
   printk(KERN_INFO "/proc/%s: module loaded\n", PROCFS_NAME);
   return 0; /* everything is ok */
 }

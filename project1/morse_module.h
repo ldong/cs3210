@@ -20,7 +20,7 @@ static size_t procfs_size;              /* Size of the procfs buffer */
 static ssize_t bytes_read;              /* bytes read/written */
 static char charbuf[MORSE_SYMBOL_MAX];  /* For translate() */
 static char c;                          /* Translated character */
-/* static char *temp_kspace;               /1* For dynamic resizing *1/ */
+static int overwrite;                   /* Boolean for overwriting */
 
 
 #define MORSE_SIZE          64
