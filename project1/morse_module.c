@@ -66,7 +66,7 @@ static ssize_t morse_write(struct file *filep, const char __user *buffer,
   procfs_size = 8;      /* Begin with 8-bytes on every write */
 
   if (overwrite)
-  {
+  { /* procfs already written, free to prevent memory leaks */
     printk(KERN_INFO "/proc/%s: Overwriting. Freeing existing memory", PROCFS_NAME);
     kfree(procfs_buffer);
   }
@@ -164,6 +164,7 @@ static int __init morse_init(void)
 
 /**
  * Called when module is unloaded
+ *
  */
 static void __exit morse_cleanup(void)
 {
@@ -181,7 +182,7 @@ module_exit(morse_cleanup);
 
 
 /**
- *
+ * Dynamically resize private space
  *
  */
 int resize_buffer(void)
@@ -206,7 +207,8 @@ int resize_buffer(void)
 
 
 /**
- *
+ * Translate buffer from morse code to normal text.
+ * char *arr will always be < 5 bytes
  *
  */
 char translate(char* arr)
@@ -224,7 +226,7 @@ char translate(char* arr)
 }
 
 /**
- *
+ * Helper function containing static trie
  *
  */
 char lookup(int index)  /* index from 1 */
