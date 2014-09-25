@@ -53,7 +53,7 @@ echo >&1 '
 **      Writing to procfs      **
 *********************************
 '
-echo "\$ echo "$MORSE_CODE" > /proc/morse2txt
+echo "\$ echo \"$MORSE_CODE\" > /proc/morse2txt
 "
 echo $MORSE_CODE > /proc/morse2txt
 dmesg
