@@ -7,7 +7,8 @@ rmmod
 ```
 
 ## Running it manually
-```
+
+``` bash
 sudo rmmod morse_module.
 
 make

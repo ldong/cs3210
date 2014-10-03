@@ -1,0 +1,1 @@
+cmd_/home/vagrant/src/cs3210/project1/morse_module.ko := ld -r -m elf_x86_64 -T /usr/src/linux-headers-3.11.0-20-generic/scripts/module-common.lds --build-id  -o /home/vagrant/src/cs3210/project1/morse_module.ko /home/vagrant/src/cs3210/project1/morse_module.o /home/vagrant/src/cs3210/project1/morse_module.mod.o
