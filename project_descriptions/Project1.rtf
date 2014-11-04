@@ -1,0 +1,94 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\fonttbl\f0\fswiss\fcharset0 ArialMT;\f1\froman\fcharset0 TimesNewRomanPSMT;}
+{\colortbl;\red255\green255\blue255;\red67\green67\blue67;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720
+
+\f0\b\fs36 \cf2 \expnd0\expndtw0\kerning0
+\'a0Assignment #1 \'96 a Hobbyist Training<o:p></o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+\uc0\u8232 As a small team of developers, you've been approached by a client who represents a group of hobbyists that are interested in using Morse code for historical reenactment.\'a0 As part of their training system, they\'92d like to have a capability for students to use any of a number of different applications to write data in Morse code (using the standard \'93dit\'94 \'93dah\'94 notation for short and long pulses, respectively).\'a0 After the students have written the file using dits and dahs, they then want to be able to immediately read it back rendered into normal text.\'a0 <o:p></o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+<o:p>\'a0</o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+You consider implementing the system as a web service, but as an exercise that would let you even given them self-contained embedded devices, you instead decide to implement this as a Linux kernel extension so that you can support any number of platforms or user applications.\uc0\u8232 <!--[if !supportLineBreakNewLine]-->\u8232 <!--[endif]-->
+\f1\fs32 \cf2 \expnd0\expndtw0\kerning0
+<o:p></o:p>
+\f0\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720
+
+\fs36 \cf2 \expnd0\expndtw0\kerning0
+Implementation:<o:p></o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+\uc0\u8232 The project should be implemented as a kernel module using the procfs system. \'a0You will be responsible for doing the in-kernel memory management cleanly, as maintaining kernel stability is important. \'a0Pointers to additional information on both of these will be loaded into the class resources section.\u8232 \u8232 There are several design choices that you will need to make. \'a0Some presentational, some feature-based, and some implementation driven.\'a0 For example, do you accept dit-dit-dit dah-dah-dah?\'a0 Or are there spaces between the dits and a tab between the characters? \'a0Can you support bidirectional translation (ie you write in normal text and get out Morse code)?\'a0 How do you chose to implement the kernel memory management?<o:p></o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+\'a0
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+As long as you meet the basic requirements, you are expected to look through these various design choices and as a team make appropriate choices.\'a0 You are expected that you will be able to defend why those particular design and implementation choices were made in the end, however.
+\f1\fs32 \cf2 \expnd0\expndtw0\kerning0
+<o:p></o:p>
+\f0\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720
+
+\fs36 \cf2 \expnd0\expndtw0\kerning0
+Evaluation<o:p></o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+\uc0\u8232 There are three recognized roles that your group will need to allocate amongst its members: \'a0Architect, Developer, and Tester. \'a0Each team member must be clearly identified in the write-up as to which roll they took on for this project, and roles will rotate amongst the team members for each different assignment this semester. \'a0This does not mean that the Architect does no development, for example -- each role is to be the leader responsible for making sure the relevant tasks are completed.\u8232 <!--[if !supportLineBreakNewLine]-->\u8232 <!--[endif]-->
+\f1\fs32 \cf2 \expnd0\expndtw0\kerning0
+<o:p></o:p>
+\f0\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+After completing your implementations, prepare a 10 minute presentation of the merits of your solutions, and write-up 1-2 page report describing the timing/performance implications of the approach (ie Testing), the coding practice and any known issues (ie Development), \'a0as well as any issues/opportunities with correctness for the design (ie Architecture). \'a0Each role should be clearly covered, although the report doesn't need to have specific subsections, etc. \'a0The demo presentation will be scheduled following the turn-in of the project code and write-up. \'a0<o:p></o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+\'a0<o:p></o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+The material turned in on t-square should come as two files: \'a0the report (in .pdf) and a separate tarball with only the kernel files that you modified and any test userspace libraries or codes.<o:p></o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+\'a0<o:p></o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+Exceeding the minimum design requirements listed here is highly encouraged, and creativity will be rewarded. \'a0Feel free to build the design skeleton out!<o:p></o:p>
+\fs28 \cf2 \expnd0\expndtw0\kerning0
+\
+<o:p>\'a0</o:p>\
+}

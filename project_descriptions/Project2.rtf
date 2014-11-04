@@ -1,0 +1,51 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\fonttbl\f0\fnil\fcharset0 TrebuchetMS;\f1\fswiss\fcharset0 ArialMT;}
+{\colortbl;\red255\green255\blue255;\red67\green67\blue67;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720
+
+\f0\b\fs52 \cf0 \expnd0\expndtw0\kerning0
+A Resounding Success: Follow-up Business\
+\pard\pardeftab720
+
+\b0\fs26 \cf0 \expnd0\expndtw0\kerning0
+The club that originally contacted you about making a training device for Morse code was delighted with your first prototype. \'a0However, some of the members have moved on, and would like to improve their "hand" -- in other words, improve the ability to actually type Morse code out using a switch, much like in the old-fashioned systems. \'a0You quickly realize that you will need to support them with a physical device in addition to the software environment, and you choose to build a small embedded Linux system that will give you flexibility for upgrades while still offering them the more physical training they are looking for.\
+\
+The client would like to be able to practice both ways ideally -- having text turned into Morse code so that they can test if they can quickly translate, as well as being able to input Morse code and having it turn to text.\
+\
+\pard\pardeftab720
+
+\f1\b\fs36 \cf2 \expnd0\expndtw0\kerning0
+Implementation:
+\fs28 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+\uc0\u8232 This project has several component pieces to it. \'a0At its base, you will be required to design and wire your own circuit using the GPIO slots on the Galileo board to meet the basic physical requirements. \'a0You will also be required to implement both a user-space code and a device driver implementation that will allow you to turn the GPIO signals into characters and vice versa. \'a0Begin the project in the following order, and be aware that there are design choices and measurement opportunities all along the way that may impact how you procede with later parts. \'a0So think ahead, but don't try to optimize everything at the outset. \'a0Good systems design is iterative -- you build the first version so that you know what's broken.\u8232 \u8232 A) Construct a user-space code that will read text strings and use GPIO commands to flash the LED on the Galileo board (or one that you construct separately on the breadboard) in the appropriate Morse code pattern. \'a0\u8232 \u8232 B) Then construct a user-space code that will analyze pulse widths from the switch (out of the Sunfounder box) and turn it into a text string based on Morse code.\u8232 \u8232 C) Build your Yocto Linux infrastructure (or load Debian) so that you can construct a kernel module that will drive your new morse character device -- /dev/morse.\u8232 \u8232 D) Implement the write side of the morse character device. \'a0Catch the GPIO signal in the kernel and redirect it to become a character. \'a0Be sure to follow appropriate line discipline.\u8232 \u8232 E) Write a simple user-space chat program that will read & write to your character device. \'a0"Sent" text should get turned into a flashing LED. \'a0"Received" text (when implemented) should come from typing on the switch.\u8232 \u8232 F) Implement the read side of the character device in order to complete your chat program.\u8232 \u8232 There are several options along the way. \'a0If you have a buzzer, substituting a buzzer circuit for your LED flasher would be a great improvement. \'a0If you get the basic pieces above together, there are additional extensions -- I have available bluetooth modules for the boards, so you could connect read/write pairs of nodes to allow box-to-box communication. \'a0You could replace the text display of the chat program, which would require the LInux terminal, with the LCD display module. \'a0And so on. \'a0Be creative! \'a0But remember that you need to discuss the design architecture of your solution and demonstrate performance associated with both your user space and kernel implementations.\u8232 
+\fs28 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720
+
+\fs36 \cf2 \expnd0\expndtw0\kerning0
+Evaluation
+\fs28 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720
+
+\fs24 \cf2 \expnd0\expndtw0\kerning0
+\uc0\u8232 As before, there are three recognized roles that your group will need to allocate amongst its members: \'a0Architect, Developer, and Tester. \'a0Each team member must be clearly identified in the write-up as to which role they took on for this project, and roles will rotate amongst the team members for each different assignment this semester. \'a0This does not mean that the Architect does no development, for example -- each role is to be the leader responsible for making sure the relevant tasks are completed.\u8232 \u8232 You will have a mid-project review, where you will need to demonstrate where you are in your initial implementation. \'a0Points will be awarded for how many of the above steps you have completed by that mid-progress meeting, as well as discussion of your design and plan for moving forward. \'a0Scheduling for this meeting will be posted in the wiki, and time slots will be set up on a first-come-first-serve basis.\u8232 \u8232 After completing your implementations, prepare a 10 minute presentation of the merits of your solutions, and write-up 1-2 page report describing the timing/performance implications of the approach (ie Testing), the coding practice and any known issues (ie Development), \'a0as well as any issues/opportunities with correctness for the design (ie Architecture). \'a0Each role should be clearly covered, although the report doesn't need to have specific subsections, etc. \'a0The demo presentation will be scheduled following the turn-in of the project code and write-up. \'a0\u8232 \u8232 The material turned in on t-square should come as two files: \'a0the report (in .pdf) and a separate tarball with only the kernel files that you modified and any test userspace libraries or codes. \'a0Only one team member should turn in the code for the entire team. \'a0In the text box for the submission page, you should write the team name and list all of the members of the team.
+\fs28 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \expnd0\expndtw0\kerning0
+\'a0
+\fs28 \expnd0\expndtw0\kerning0
+\
+
+\fs24 \expnd0\expndtw0\kerning0
+Exceeding the minimum design requirements listed here is highly encouraged, and creativity will be rewarded. \'a0Feel free to build the design skeleton out!
+\fs28 \expnd0\expndtw0\kerning0
+\
+}
