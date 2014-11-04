@@ -1,0 +1,100 @@
+[  388.810676] Ready to receive
+[  388.815775] Current Status: 0
+[  388.818781] Start time: 895295
+[  392.404856] End time: 481355
+[  392.407773] Duration: -413940
+[  392.414375] Current Status: 1
+[  392.417380] Start time: 493895
+[  392.562499] End time: 638997
+[  392.565415] Duration: 145102
+[  392.571803] Current Status: 0
+[  392.574808] Start time: 651323
+[  397.768671] End time: 845169
+[  397.771682] Duration: 193846
+[  397.777712] Current Status: 1
+[  397.780810] Start time: 857312
+[  398.823667] End time: 900165
+[  398.826583] Duration: 42853
+[  398.831833] Current Status: 0
+[  398.834838] Start time: 911353
+[  399.852165] End time: 928664
+[  399.855081] Duration: 17311
+[  399.861762] Current Status: 1
+[  399.864767] Start time: 941282
+[  401.246211] End time: 322709
+[  401.249127] Duration: -618573
+[  401.255729] Current Status: 0
+[  401.258734] Start time: 335248
+[  403.371199] End time: 447698
+[  403.374116] Duration: 112450
+[  403.379233] Current Status: 1
+[  403.382337] Start time: 458839
+[  404.510716] End time: 587214
+[  404.513633] Duration: 128375
+[  404.518736] Current Status: 0
+[  404.521836] Start time: 598338
+[  410.419576] End time: 496075
+[  410.422592] Duration: -102263
+[  410.428618] Current Status: 1
+[  410.431716] Start time: 508218
+[  412.261578] End time: 338077
+[  412.264495] Duration: -170141
+[  412.269598] Current Status: 0
+[  412.272701] Start time: 349202
+[  420.146841] End time: 223340
+[  420.149758] Duration: -125862
+[  420.156372] Current Status: 1
+[  420.159377] Start time: 235891
+[  420.293532] End time: 370030
+[  420.296448] Duration: 134139
+[  420.301840] Current Status: 0
+[  420.304846] Start time: 381361
+[  422.657753] End time: 734252
+[  422.660763] Duration: 352891
+[  422.666794] Current Status: 1
+[  422.669800] Start time: 746314
+[  424.827396] End time: 903894
+[  424.830407] Duration: 157580
+[  424.836425] Current Status: 0
+[  424.839430] Start time: 915945
+[  426.588533] End time: 665031
+[  426.591546] Duration: -250914
+[  426.597555] Current Status: 1
+[  426.600666] Start time: 677168
+[  428.711157] End time: 787655
+[  428.714073] Duration: 110487
+[  428.719164] Current Status: 0
+[  428.722265] Start time: 798767
+[  431.405449] End time: 481948
+[  431.408366] Duration: -316819
+[  431.414969] Current Status: 1
+[  431.417974] Start time: 494488
+[  434.972006] End time: 48504
+[  434.974835] Duration: -445984
+[  434.980100] Current Status: 0
+[  434.983104] Start time: 59619
+[  437.970489] End time: 46988
+[  437.973318] Duration: -12631
+[  437.978500] Current Status: 1
+[  437.981603] Start time: 58105
+[  442.594016] End time: 670515
+[  442.596932] Duration: 612410
+[  442.599829] Dit!
+[  442.606482] Current Status: 0
+[  442.609487] Start time: 686002
+[  445.037109] End time: 113607
+[  445.040118] Duration: -572395
+[  445.046150] Current Status: 1
+[  445.049155] Start time: 125669
+[  448.548453] End time: 624952
+[  448.551463] Duration: 499283
+[  448.557483] Current Status: 0
+[  448.560582] Start time: 637084
+[  449.746171] End time: 822670
+[  449.749087] Duration: 185586
+[  449.755690] Current Status: 1
+[  449.758695] Start time: 835210
+[  457.199587] End time: 276085
+[  457.202598] Duration: -559125
+[  457.208616] Current Status: 0
+[  457.211714] Start time: 288216

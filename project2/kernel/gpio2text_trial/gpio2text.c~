@@ -1,0 +1,159 @@
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/gpio.h>
+#include <linux/delay.h>
+#include <linux/time.h>
+#include <linux/proc_fs.h>
+#include <linux/seq_file.h>
+#include <asm/uaccess.h>
+#include <linux/vmalloc.h>
+#include "morse.h"
+
+#define GP_LED (3) // GPIO3 is GP LED
+#define GP_5 (17) //GPIO17 corresponds to Arduino PIN5
+#define LETTER (1)
+#define PAUSE (0)
+#define TYPO_SYMBOL ('?')
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("gpio2text");
+MODULE_AUTHOR("Xinyi Chen, Lin Dong");
+
+typedef enum {DIT, DAH, LETTER_PAUSE, WORD_PAUSE, TYPO, FINISH} signal_t;
+
+signal_t read_signal(int value, int sec_duration)
+char text_lookup(char* morse);
+void signal_success(void);
+int read_proc(struct file *filp, char *buf, size_t count, loff_t *offp);
+void receive(void);
+
+void receive() {
+    signal_t signal;
+    char buffer[10];
+    int buff_tail = 0;
+    struct timeval *start_time = (struct timeval *)vmalloc(sizeof(struct timeval));
+    struct timeval *end_time = (struct timeval *)vmalloc(sizeof(struct timeval));
+
+    do {
+        int curr_status = gpio_get_value_cansleep(GP_5);
+        printk(KERN_INFO "Current Status: %d\n", curr_status);
+
+        volatile int dumb = 0;
+
+        do_gettimeofday(start_time);
+        printk(KERN_INFO "Start time: %d\n", start_time->tv_sec);
+
+        while(gpio_get_value_cansleep(GP_5) == curr_status) {
+            dumb++;
+        }
+
+        do_gettimeofday(end_time);
+        printk(KERN_INFO "End time: %d\n", end_time->tv_sec);
+        printk(KERN_INFO "Duration: %d\n", (end_time->tv_sec) - (start_time->tv_sec));
+
+        signal = read_signal(curr_status, (end_time->tv_sec) - (start_time->tv_sec));
+
+        switch(signal) {
+            case DIT:
+                printk(KERN_INFO "Dit!\n");
+                signal_success();
+                buffer[buff_tail] = '.';
+                buff_tail++;
+                break;
+            case DAH:
+                printk(KERN_INFO "Dah!\n");
+                signal_success();
+                buffer[buff_tail] = '-';
+                buff_tail++;
+                break;
+            case LETTER_PAUSE:
+                buffer[buff_tail] = '\0';
+                printk(KERN_INFO "%c\n", text_lookup(buffer));
+                buff_tail = 0;
+                break;
+            case WORD_PAUSE:
+                printk(KERN_INFO " \n");
+                buff_tail = 0;
+                break;
+            default:
+                break;
+        }
+    } while (signal != FINISH);
+
+    printk(KERN_INFO "End receiving\n");
+
+    vfree(start_time);
+    vfree(end_time);
+}
+
+signal_t read_signal(int value, int sec_duration) {
+    int duration = sec_duration * 10; // duration adjusted to avoid double comparison
+
+    if (LETTER == value) {
+        if (duration <= 5) {
+            return TYPO;
+        } else if (duration <= 15) {
+            return DIT;
+        } else if (duration <= 35) {
+            return DAH;
+        } else {
+            return TYPO;
+        }
+    } else {
+        if (duration <= 15) {
+            return TYPO;
+        } else if (duration <= 50) {
+            return LETTER_PAUSE;
+        } else if (duration <= 100) {
+            return WORD_PAUSE;
+        } else {
+            return FINISH;
+        }
+    }
+}
+
+char text_lookup(char* morse) {
+    int i;
+
+    for (i = 0; i < 26; i++) {
+        if (strcmp(morse, morse_table[i]) == 0) {
+            return alphabet_table[i];
+        }
+    }
+
+    return TYPO_SYMBOL;
+}
+
+void signal_success(void) {
+    gpio_set_value_cansleep(GP_LED, 1);
+    udelay(200);
+    gpio_set_value_cansleep(GP_LED, 0);
+}
+
+int init_morse_module(void){
+    if (gpio_request_one(GP_5 , GPIOF_DIR_IN, "GP_5")) {
+    	printk(KERN_INFO "Failed to get GP 5\n");
+    	return -1;
+    }
+
+    if (gpio_request_one(GP_LED, GPIOF_DIR_OUT, "GP_LED")) {
+        printk(KERN_INFO "Failed to get GP LED\n");
+        return -1;
+    }
+
+    printk(KERN_INFO "Ready to receive\n");
+
+    receive();
+
+    return 0;
+}
+
+void cleanup_morse_module(void){
+    printk(KERN_INFO "Shutting down\n");
+
+    gpio_free(GP_5);
+    gpio_free(GP_LED);
+}
+
+module_init(init_morse_module);
+module_exit(cleanup_morse_module);
