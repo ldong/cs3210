@@ -1,0 +1,36 @@
+#!/bin/bash
+
+echo Do you want to text2gpio or gpio2text? "(t or g)"
+read x
+
+if [ "$x" = "t" ]; then
+    echo What would you like to be transalted? "->"
+    read input
+    echo "You input: " $input
+    if [ ! -f /proc/text ]; then
+        insmod /media/realroot/code/kernel/text2gpio_procf/text2gpio.ko
+    fi
+    START=$(date +%s.%N)
+    echo $input > /proc/text
+    END=$(date +%s.%N)
+    echo Processing started: $START
+    echo
+    echo Processing ended: $END
+    DIFF=$(echo "$END - $START" | bc)
+    echo Time spent on processing: $DIFF
+    rmmod /media/realroot/code/kernel/text2gpio_procf/text2gpio.ko
+    #echo $(($(date +%s%N)/1000000))
+fi
+
+if [ "$x" = "g" ]; then
+    # START=$(date +%s.%N)
+    insmod /media/realroot/code/kernel/gpio2text/gpio2text.ko
+    # END=$(date +%s.%N)
+    # echo Processing started: $START
+    # echo Processing ended: $END
+    # DIFF=$(echo "$END - $START" | bc)
+    # echo Time spent on processing: $DIFF us
+    echo Time spent on processing in us
+    rmmod /media/realroot/code/kernel/gpio2text/gpio2text.ko
+    dmesg | tail -1
+fi
