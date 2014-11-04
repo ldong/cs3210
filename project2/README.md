@@ -1,7 +1,9 @@
 # README
 
 Authors:
+
 * [xinyichen](https://github.com/xinyichen)
+
 * [ldong](https://github.com/ldong)
 
 ## Setup

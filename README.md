@@ -1,6 +1,7 @@
 # CS3210 Readme
 
 CS3210: OS Design Syllabus
+
 Date: Fall 2014
 
 ## Textbooks
