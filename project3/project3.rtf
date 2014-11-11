@@ -1,0 +1,75 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\fonttbl\f0\fswiss\fcharset0 ArialMT;\f1\fnil\fcharset0 TrebuchetMS;\f2\fmodern\fcharset0 Courier;
+}
+{\colortbl;\red255\green255\blue255;\red67\green67\blue67;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720
+
+\f0\b\fs28 \cf2 \expnd0\expndtw0\kerning0
+Your Device's Picture File System\
+\pard\pardeftab720
+
+\f1\b0\fs26 \cf0 \expnd0\expndtw0\kerning0
+Sharing your media is something that we all want to do -- from our phones, cameras, laptops, and even specialty devices. \'a0However, this means that we also have many locations where pictures may reside, and it isn't necessarily where you want them to be. \'a0Keeping pictures organized is a persistent problem that many people have to face.\'a0 One approach is to provide application software that scans your hard drive in order to find all possible picture files and then either copy them into an application-specified location or to simply note where they are and generate metadata so the application can find them again.\'a0 Many such applications exist, both free and commercially available.\
+However, it is now clear that certain operations are "universal" from a user's perspective -- the ability to sort by the date the picture was taken, or by a geotagged location, or by a recognized face.\'a0 In the finest tradition of Operating Systems design, for this assignment you are therefore going to take this new abstraction of a "picture file" and design a file system that reflects some of the distinctions in how a user wants to interact with pictures as opposed to other data that might reside in a more traditional file system.\
+\pard\pardeftab720
+
+\f0\b \cf2 \expnd0\expndtw0\kerning0
+DPFS Features\
+\pard\pardeftab720
+
+\f1\b0 \cf0 \expnd0\expndtw0\kerning0
+\'a0This assignment is reasonably open-ended, and there is room for considerable innovation on your part. \'a0The minimum requirements are listed below, but feel free to be creative and go above and beyond.\
+1) \'a0 \expnd0\expndtw0\kerning0
+\ul Automatic Sorting\expnd0\expndtw0\kerning0
+\ulnone .\'a0 Pictures should be only copied into the root level of the file system.\'a0 I.E.\'a0 If you have mounted it at ~/MyPFS in your home directory, you would just copy pictures to that directory, not any subdirectories. \'a0DPFS should not display them there, though -- it should automatically move/link the file to the appriate subdirectories.\
+2) \'a0 \expnd0\expndtw0\kerning0
+\ul Sorting by date taken\expnd0\expndtw0\kerning0
+\ulnone .\'a0 For pictures that have EXIF headers, they should be read.\'a0 For other pictures, the date the file was created should be used instead.\'a0\
+. \'a0A sample of the expected directory structure is provided below:\
+\pard\pardeftab720
+
+\f2\fs20 \cf0 \expnd0\expndtw0\kerning0
+./Dates\
+-->/2009\
+-->/2008\
+-->-->/January\
+-->-->/February\
+-->-->-->/Pic1.jpg\
+-->-->-->/Pic2.jpg\
+\pard\pardeftab720
+
+\f1\fs26 \cf0 \expnd0\expndtw0\kerning0
+\
+And the following should complete correctly:\
+cp ./Dates/2008/February/Pic1.jpg $\{HOMEDIR\}/newpics\
+3) \'a0\expnd0\expndtw0\kerning0
+\ul Distributed Back-end Storage\expnd0\expndtw0\kerning0
+\ulnone .\'a0 You won't be implementing a full, block-level file system, so any files in ~/MyPFS will have to have a representation in a back-end store. Conceptually, this could be anything -- a database, a magic file in /tmp, a hidden ~/.mypics directory. However, as we are motivated by thinking about devices both mobile and embedded, I want you to come up with a decomposition between storing files on the local disk and a remote server (on a home file server, flickr, pinterest, etc.). \'a0 \'a0 \'a0 \'a0\'a0 \
+\
+You will need some representation of the metadata on the local hardware for fast lookups, but how you manage display and storage between local and remote locations has to be part of your design and performance measurement for this project.\
+\
+\pard\pardeftab720
+
+\f0\b \cf2 \expnd0\expndtw0\kerning0
+Tools\
+\pard\pardeftab720
+
+\f1\b0 \cf0 \expnd0\expndtw0\kerning0
+\'a0You will be using the FUSE toolkit to implement your file system for this project.\'a0 Accessing complex libraries (like those needed to read the exif headers) from the kernel is problematic, and FUSE helps to solve this.\'a0 FUSE, in essence, brings a bit of microkernel to the Linux macrokernel.\'a0 It implements the Linux virtual file system interface in the kernel by providing callback functions to a registered userspace program.\'a0 The userspace daemon can then perform the action as requested and supply the updates to the inodes, directory structures, etc. through a set of provided functions.\
+You can go and dowload FUSE and build and install it for your kernel if you like.\'a0 However, a package for the redhat kernel, for ubuntu, and for Android already exist.\'a0 There are a number of tutorials and "hello world" examples to read online about how to get started with fuse.\'a0 Useful pages to start with are\
+http://fuse.sourceforge.net/\'a0 -- The main page for all things fuse.\
+http://fuse.sourceforge.net/helloworld.html\'a0 -- a simple hello world\
+EXIF data is something that you can use pre-existing implementations to access.\'a0 For example, libexif (http://libexif.sourceforge.net/) or exiv2 (http://www.exiv2.org/) are both good solutions.\
+\'a0\
+\pard\pardeftab720
+
+\f0\b \cf2 \expnd0\expndtw0\kerning0
+Report\
+\pard\pardeftab720
+
+\f1\b0 \cf0 \expnd0\expndtw0\kerning0
+You will need to turn in an implementation of YPFS along with a report detailing its design and implications for reliablity etc, mesurements of performance, and future enhancement potential.\'a0 You will be provided an initial selection of pictures, but a key performance metric will be scalability to large number of pictures, so you are encouraged to utilize more photos where possible.\'a0 (Do not utilize anything that you do not want displayed publicly in class with your entire family watching as well....)\
+Your team will provide a demo in class during the last week of class. \'a0Some may have to demo on the Tuesday before Thanksgiving, which is before the due date, so be prepared! \'a0For the in-class demo, the majority of your time should be devoted to discussing the design, but you should come prepared to demonstrate your file system at work. \'a0It is recommended that you demonstrate the file system live -- running it on a local laptop, exporting nautilus from one of the factors, displaying from your android phone, etc.\
+\'a0}
