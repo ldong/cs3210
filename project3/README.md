@@ -1,13 +1,14 @@
 # README
 
-## idea
+## Idea
 
-Write a python program that automatically sort pictures in order and sync up with
-dropbox. It doesn't matter the storage is full or not.
+Write a program that automatically sort pictures in order and sync up with
+dropbox.
 
 ## Installation
 
-On **Ubuntu**
+On **Ubuntu**:
+
 1. Download and extract
     ```
     sudo apt-get install pkg-config
