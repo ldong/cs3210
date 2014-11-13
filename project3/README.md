@@ -69,3 +69,7 @@ On **Ubuntu**:
 
 [Dropbox API]
 (https://www.dropbox.com/developers/core)
+
+[Dropbox API for C]
+(https://github.com/Dwii/Dropbox-C)
+

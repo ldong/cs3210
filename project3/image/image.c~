@@ -1,0 +1,35 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <libexif/exif-data.h>
+
+#define IMG_NAME ("sample_img.JPG")
+
+int main(void) {
+	FILE* fp;
+	char *buffer;
+	unsigned long file_length;
+
+	//open file
+	fp = fopen(IMG_NAME, "r");
+	if (NULL == fp) {
+        fprintf(stderr, "Unable to open %s\n", IMG_NAME);
+        exit(1);
+    }
+
+    //get file length
+    fseek(fp, 0, SEEK_END);
+    file_length = ftell(fp) + 1;
+    fseek(fp, 0, SEEK_SET);
+
+    //allocate memory
+    buffer = (char *)malloc(file_length);
+    if (NULL == buffer) {
+    	fprintf(stderr, "Unable to allocation memory for buffer\n");
+    	fclose(fp);
+    	exit(1);
+    }
+
+    fclose(fp);
+
+    return 0;
+}
